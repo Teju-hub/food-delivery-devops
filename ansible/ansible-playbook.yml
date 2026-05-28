@@ -1,21 +1,19 @@
 ---
-- name : setup build-agent
-  hosts: build
+- name: setup devops-master
+  hosts: master
   become: yes
-
   tasks:
-    - name: Install java
+    - name: Install Java
       apt:
         name: openjdk-21-jdk
         state: present
         update_cache: yes
 
-    - name: Install Jenkins
+    - name: Install Jenkins key and repo
       shell: |
         wget -q -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
         echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | tee /etc/apt/sources.list.d/jenkins.list
-        apt-get update
-        apt-get install -y jenkins
+        apt-get update && apt-get install -y jenkins
 
     - name: Start Jenkins
       service:
@@ -23,13 +21,23 @@
         state: started
         enabled: yes
 
-    - name: Install docker
+- name: setup build-agent
+  hosts: build
+  become: yes
+  tasks:
+    - name: Install Java
+      apt:
+        name: openjdk-21-jdk
+        state: present
+        update_cache: yes
+
+    - name: Install Docker
       apt:
         name: docker.io
         state: present
         update_cache: yes
 
-    - name: start Docker
+    - name: Start Docker
       service:
         name: docker
         state: started
