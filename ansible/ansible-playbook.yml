@@ -1,0 +1,29 @@
+---
+- name : setup build-agent
+  hosts: build
+  become: yes
+
+  tasks:
+    - name: Install java
+      apt:
+        name: openjdk-21-jdk
+        state: present
+        update_cache: yes
+
+    - name: Install docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: start Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ubuntu to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
